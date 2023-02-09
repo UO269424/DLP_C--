@@ -1,0 +1,31 @@
+package ast.types;
+
+import ast.Type;
+
+public class ArrayType extends AbstractType{
+
+    private int length;
+    private Type type;
+
+    public ArrayType(int line, int column, int length, Type type) {
+        super(line, column);
+        this.length = length;
+        this.type = type;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+}
