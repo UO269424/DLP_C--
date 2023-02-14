@@ -1,6 +1,8 @@
 package parser;
 
 public class LexerHelper {
+
+	private static final int ASCII_CODE_CHAR = 6;
 	
 	public static int lexemeToInt(String str) {
 		try {
@@ -13,5 +15,6 @@ public class LexerHelper {
 	}
 
 	// TODO: Implement the lexemeToChar and lexemeToReal methods
+
 	
 }
