@@ -17,8 +17,8 @@ public class CmmParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		IDENTIFIER=1, INT_CONSTANT=2, REAL_CONSTANT=3, CHAR_CONSTANT=4, BLANKS=5, 
-		SL_COMMENT=6, ML_COMMENT=7;
+		ID=1, INT_CONSTANT=2, REAL_CONSTANT=3, CHAR_CONSTANT=4, SL_COMMENT=5, 
+		ML_COMMENT=6, BLANKS=7;
 	public static final int
 		RULE_program = 0;
 	private static String[] makeRuleNames() {
@@ -35,8 +35,8 @@ public class CmmParser extends Parser {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "IDENTIFIER", "INT_CONSTANT", "REAL_CONSTANT", "CHAR_CONSTANT", 
-			"BLANKS", "SL_COMMENT", "ML_COMMENT"
+			null, "ID", "INT_CONSTANT", "REAL_CONSTANT", "CHAR_CONSTANT", "SL_COMMENT", 
+			"ML_COMMENT", "BLANKS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -92,10 +92,6 @@ public class CmmParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class ProgramContext extends ParserRuleContext {
-		public List<TerminalNode> CHAR_CONSTANT() { return getTokens(CmmParser.CHAR_CONSTANT); }
-		public TerminalNode CHAR_CONSTANT(int i) {
-			return getToken(CmmParser.CHAR_CONSTANT, i);
-		}
 		public ProgramContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -105,24 +101,9 @@ public class CmmParser extends Parser {
 	public final ProgramContext program() throws RecognitionException {
 		ProgramContext _localctx = new ProgramContext(_ctx, getState());
 		enterRule(_localctx, 0, RULE_program);
-		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(3); 
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			do {
-				{
-				{
-				setState(2);
-				match(CHAR_CONSTANT);
-				}
-				}
-				setState(5); 
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-			} while ( _la==CHAR_CONSTANT );
 			}
 		}
 		catch (RecognitionException re) {
@@ -137,12 +118,10 @@ public class CmmParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001\u0007\b\u0002\u0000\u0007\u0000\u0001\u0000\u0004\u0000\u0004"+
-		"\b\u0000\u000b\u0000\f\u0000\u0005\u0001\u0000\u0000\u0000\u0001\u0000"+
-		"\u0000\u0000\u0007\u0000\u0003\u0001\u0000\u0000\u0000\u0002\u0004\u0005"+
-		"\u0004\u0000\u0000\u0003\u0002\u0001\u0000\u0000\u0000\u0004\u0005\u0001"+
-		"\u0000\u0000\u0000\u0005\u0003\u0001\u0000\u0000\u0000\u0005\u0006\u0001"+
-		"\u0000\u0000\u0000\u0006\u0001\u0001\u0000\u0000\u0000\u0001\u0005";
+		"\u0004\u0001\u0007\u0005\u0002\u0000\u0007\u0000\u0001\u0000\u0001\u0000"+
+		"\u0001\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0003\u0000\u0002\u0001"+
+		"\u0000\u0000\u0000\u0002\u0003\u0001\u0000\u0000\u0000\u0003\u0001\u0001"+
+		"\u0000\u0000\u0000\u0000";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

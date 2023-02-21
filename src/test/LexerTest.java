@@ -14,6 +14,7 @@ public class LexerTest {
 		// creates a buffer of tokens pulled from the lexer
 		CmmLexer lexer = new CmmLexer(input);
 
+
 		// tests the lexer for the given input file
 		Token token;
 		int i = 0;

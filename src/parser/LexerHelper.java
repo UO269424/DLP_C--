@@ -14,7 +14,42 @@ public class LexerHelper {
 		return -1;
 	}
 
-	// TODO: Implement the lexemeToChar and lexemeToReal methods
+	public static char lexemeToChar(String str) {
 
+		// When we have 'a'
+		if (str.length() == 3)
+			return str.toCharArray()[1];
+
+		// When we have '\t'
+		switch (str) {
+			case "'\\t'": return '\t';
+			case "'\\n'": return '\n';
+			case "'\\r'": return '\r';
+			case "'\''": return '\'';
+			case "'\\'": return '\\';
+		}
+
+		// When we have '\126'
+		str = str.replaceAll("'", "");
+		str = str.substring(1);
+		return (char) Integer.parseInt(str);
+	}
+
+
+	public static double lexemeToReal(String str) {
+		try {
+			String[] split = str.toLowerCase().split("e");
+
+			double num = Double.parseDouble(split[0]);
+			if (split.length == 1)
+				return num;
+
+			return num * Math.pow(10, Double.parseDouble(split[1]));
+		}
+		catch(NumberFormatException e) {
+			System.out.println(e);
+		}
+		return -1;
+	}
 	
 }
