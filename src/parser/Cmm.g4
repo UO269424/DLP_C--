@@ -54,15 +54,22 @@ builtInType:    //Integer Type
                 | 'char'
     ;
 
+recordField: t1= type ID (',' ID)*';'
+            ;
+
 type:   //Built In type
         builtInType
         // Void Type
         | 'void'
+        //Record Type
+        | 'struct' '{'(recordField)* '}'
         //Array Type
         | t1=type '[' INT_CONSTANT ']' ('[' INT_CONSTANT ']')*
         //Function Type
 //        | builtInType ID '(' (varDefinition (',' varDefinition)*)?')'
+//        | 'void' ID '(' (varDefinition (',' varDefinition)*)?')'
     ;
+
 
 block: statement
         | '{' statement* '}'
@@ -71,6 +78,9 @@ block: statement
 funcInvocation: ID'('( e1=expression (',' e2=expression)* )?')'
                 ;
 
+
+definition:
+            ;
 
 /*
 ----------------------------------------------------LEXER RULES---------------------------------------------------------
