@@ -1,9 +1,23 @@
 grammar Cmm;	
 
 
+
+program:    (definition)* main EOF
+        ;
+
+main:   'void' 'main' '(' ')' functionBody
+        ;
+
+
+
+/*
+------------------------------------------------------------------------------------------------------------------------
+                                                            EXPRESSIONS
+------------------------------------------------------------------------------------------------------------------------
+*/
 expression: //Parenthesis
             '('e1=expression')'
-            //Function invocation
+            //Function invocation as expression
             | funcInvocation
             //Array Access
             |e1=expression '[' e2=expression ']'
@@ -28,10 +42,16 @@ expression: //Parenthesis
             |ID
        ;
 
+/*
+------------------------------------------------------------------------------------------------------------------------
+                                                            STATEMENTS
+------------------------------------------------------------------------------------------------------------------------
+*/
+
 statement:  //Assignment
             e1=expression '=' e2=expression ';'
-            //Function Invocation
-            funcInvocation';'
+            //Function Invocation as procedure
+            | funcInvocation';'
             //If
             |'if' '(' e1=expression ')' block
             //If-else
@@ -46,6 +66,22 @@ statement:  //Assignment
             |'while' '(' e1=expression ')' block
         ;
 
+/*
+------------------------------------------------------------------------------------------------------------------------
+                                                            TYPES
+------------------------------------------------------------------------------------------------------------------------
+*/
+
+type:   //Built In type
+        builtInType
+        // Void Type
+        | 'void'
+        //Record Type
+        | 'struct' '{'(recordField)* '}'
+        //Array Type
+        | t1=type '[' INT_CONSTANT ']' ('[' INT_CONSTANT ']')*
+    ;
+
 builtInType:    //Integer Type
                 'int'
                 //Double Type
@@ -57,19 +93,34 @@ builtInType:    //Integer Type
 recordField: t1= type ID (',' ID)*';'
             ;
 
-type:   //Built In type
-        builtInType
-        // Void Type
-        | 'void'
-        //Record Type
-        | 'struct' '{'(recordField)* '}'
-        //Array Type
-        | t1=type '[' INT_CONSTANT ']' ('[' INT_CONSTANT ']')*
-        //Function Type
-//        | builtInType ID '(' (varDefinition (',' varDefinition)*)?')'
-//        | 'void' ID '(' (varDefinition (',' varDefinition)*)?')'
-    ;
+/*
+------------------------------------------------------------------------------------------------------------------------
+                                                            DEFINITIONS
+------------------------------------------------------------------------------------------------------------------------
+*/
 
+
+definition:   //Function Definition
+              functionDefinition
+              //Variable Definition
+            | variableDefinition
+            ;
+
+functionDefinition: //Params must be built-in, return type can be buil-In or void (description.txt)
+                    t1=builtInType idF=ID '(' (params)?')' functionBody
+                    | 'void' idF=ID '(' (params)?')' functionBody
+                    ;
+
+
+variableDefinition: type id1=ID (',' id2=ID)* ';'
+                    ;
+
+
+/*
+------------------------------------------------------------------------------------------------------------------------
+                                                            AUX
+------------------------------------------------------------------------------------------------------------------------
+*/
 
 block: statement
         | '{' statement* '}'
@@ -79,8 +130,16 @@ funcInvocation: ID'('( e1=expression (',' e2=expression)* )?')'
                 ;
 
 
-definition:
-            ;
+functionBody:   '{'
+                    (variableDefinition)*
+                    (statement)*
+                '}'
+                ;
+
+params: t1=builtInType id1=ID (',' t2=builtInType id2=ID )*
+        ;
+
+
 
 /*
 ----------------------------------------------------LEXER RULES---------------------------------------------------------
