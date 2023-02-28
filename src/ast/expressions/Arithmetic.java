@@ -8,8 +8,8 @@ public class Arithmetic extends AbstractExpression{
     private Expression right;
     private String operator;
 
-    public Arithmetic(Expression left, Expression right, String operator) {
-        super(left.getLine(), left.getColumn());
+    public Arithmetic(int line, int column,Expression left, Expression right, String operator) {
+        super(line, column);
         this.left = left;
         this.right = right;
         this.operator = operator;

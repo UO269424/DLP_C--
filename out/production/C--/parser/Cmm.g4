@@ -1,4 +1,12 @@
-grammar Cmm;	
+grammar Cmm;
+
+@header {
+    import ast.*;
+    import ast.definitions.*;
+    import ast.expressions.*;
+    import ast.statements.*;
+    import ast.types.*;
+}
 
 
 
@@ -15,7 +23,7 @@ main:   'void' 'main' '(' ')' functionBody
                                                             EXPRESSIONS
 ------------------------------------------------------------------------------------------------------------------------
 */
-expression: //Parenthesis
+expression returns [Expression ast]: //Parenthesis
             '('e1=expression')'
             //Function invocation as expression
             | funcInvocation
@@ -30,16 +38,16 @@ expression: //Parenthesis
             //Unary not
             | '!' e1 = expression
             //Arithmetic and modulus
-            | e1=expression ('*' | '/' | '%') e2=expression
-            | e1=expression ('+' | '-') e2=expression
+            | e1=expression op=('*' | '/' | '%') e2=expression
+            | e1=expression op=('+' | '-') e2=expression    {$ast= new Arithmetic($e1.ast, $e2.ast, $op.text);}
             //Comparisons
             | e1=expression ('<' | '<='| '>'| '>='| '!='| '==') e2=expression
             //Logical
             | e1=expression ('&&' | '||') e2=expression
-            |INT_CONSTANT
+            |i1=INT_CONSTANT    {$ast = new IntLiteral($i1.getLine(), $i1.getCharPositionInLine()+1, LexerHelper.lexemeToInt($i1.text));}
             |CHAR_CONSTANT
             |REAL_CONSTANT
-            |ID
+            |ID {$ast = new Variable($ID.getLine(), $ID.getCharPositionInLine()+1, $ID.text);}
        ;
 
 /*

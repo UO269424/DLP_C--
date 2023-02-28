@@ -1,6 +1,11 @@
+import introspector.model.IntrospectorModel;
+import introspector.view.IntrospectorView;
 import parser.*;
 
 import org.antlr.v4.runtime.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 	
@@ -17,7 +22,17 @@ public class Main {
 		// create a parser that feeds off the tokens buffer
 		CommonTokenStream tokens = new CommonTokenStream(lexer); 
 		CmmParser parser = new CmmParser(tokens);	
-		parser.program();		
+		parser.program();
+
+		//Program ast = parser.program().ast;
+
+		List<String> ast = new ArrayList<>();
+
+		ast.add("leaf node");
+
+		IntrospectorModel model=new IntrospectorModel("Program", ast);
+		new IntrospectorView("Introspector", model);
+
 	}
 	
 

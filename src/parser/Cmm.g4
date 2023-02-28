@@ -1,4 +1,12 @@
-grammar Cmm;	
+grammar Cmm;
+
+@header {
+    import ast.*;
+    import ast.definitions.*;
+    import ast.expressions.*;
+    import ast.statements.*;
+    import ast.types.*;
+}
 
 
 
@@ -15,31 +23,34 @@ main:   'void' 'main' '(' ')' functionBody
                                                             EXPRESSIONS
 ------------------------------------------------------------------------------------------------------------------------
 */
-expression: //Parenthesis
-            '('e1=expression')'
+expression returns [Expression ast]:
+            //Parenthesis
+            '('e1=expression')'     {$ast = $e1.ast;}
             //Function invocation as expression
-            | funcInvocation
+            | f1 = funcInvocation   {$ast = $f1.ast}
             //Array Access
-            |e1=expression '[' e2=expression ']'
+            |e1=expression '[' e2=expression ']'    {$ast = new ArrayAccess($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast);}
             //Field Access
-            |e1=expression '.' ID
+            |e1=expression '.' ID   {$ast = new FieldAccess($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $ID.text);}
             //Cast
-            | '('t1=type')' e1=expression
+            | '('t1=type')' e1=expression   {$ast = new Cast($t1.ast.getLine(), $t1.ast.getColumn(), $t1.ast, $e1.ast);}
             //Unary minus
-            | '-' e1=expression
+            | '-' e1 = expression   {$ast = new UnaryMinus($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast);}
             //Unary not
-            | '!' e1 = expression
+            | '!' e1 = expression   {$ast = new UnaryNot($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast);}
             //Arithmetic and modulus
-            | e1=expression ('*' | '/' | '%') e2=expression
-            | e1=expression ('+' | '-') e2=expression
+            | e1=expression op=('*' | '/' | '%') e2=expression  {$ast= ParserHelper.highOrderArithmetic($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
+            | e1=expression op=('+' | '-') e2=expression        {$ast= new Arithmetic($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
             //Comparisons
-            | e1=expression ('<' | '<='| '>'| '>='| '!='| '==') e2=expression
+            | e1=expression op=('<' | '<='| '>'| '>='| '!='| '==') e2=expression   {$ast = new Comparison($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
             //Logical
-            | e1=expression ('&&' | '||') e2=expression
-            |INT_CONSTANT
-            |CHAR_CONSTANT
-            |REAL_CONSTANT
-            |ID
+            | e1=expression ('&&' | '||') e2=expression {$ast = new Logical($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
+            //Constants
+            |i1=INT_CONSTANT    {$ast = new IntLiteral($i1.getLine(), $i1.getCharPositionInLine()+1, LexerHelper.lexemeToInt($i1.text));}
+            |i1=CHAR_CONSTANT   {$ast = new CharLiteral($i1.getLine(), $i1.getCharPositionInLine()+1, LexerHelper.lexemeToChar($i1.text));}
+            |i1=REAL_CONSTANT   {$ast = new DoubleLiteral($i1.getLine(), $i1.getCharPositionInLine()+1, LexerHelper.lexemeToReal($i1.text));}
+            //Variable
+            |ID {$ast = new Variable($ID.getLine(), $ID.getCharPositionInLine()+1, $ID.text);}
        ;
 
 /*
@@ -72,7 +83,8 @@ statement:  //Assignment
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-type:   //Built In type
+type returns [Type ast]:
+        //Built In type
         builtInType
         // Void Type
         | 'void'
@@ -126,7 +138,10 @@ block: statement
         | '{' statement* '}'
         ;
 
-funcInvocation: ID'('( e1=expression (',' e2=expression)* )?')'
+funcInvocation returns [FunctionInvocation ast]:
+                ID'('args')' {$ast = new FunctionInvocation($ID.getLine(), $ID.getCharPositionInLine()+1,
+                                                                  new Variable($ID.getLine(), $ID.getCharPositionInLine()+1)),
+                                                                    $args.ast);}
                 ;
 
 
@@ -139,7 +154,14 @@ functionBody:   '{'
 params: t1=builtInType id1=ID (',' t2=builtInType id2=ID )*
         ;
 
+args returns [List<Expression> ast = new ArrayList<>()]:
+    ( e1=expression {$ast.add($e1.ast)}(',' e2=expression {$ast.add($e2.ast)})* )
+    |
+    ;
 
+highOrderArithmetic:
+                    //
+                    ;
 
 /*
 ----------------------------------------------------LEXER RULES---------------------------------------------------------
