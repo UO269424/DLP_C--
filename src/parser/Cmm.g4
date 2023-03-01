@@ -59,8 +59,9 @@ expression returns [Expression ast]:
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-statement:  //Assignment
-            e1=expression '=' e2=expression ';'
+statement returns [Statement ast]:
+            //Assignment
+            e1=expression '=' e2=expression ';' {$ast = new Assignment($e1.ast.getLine(), $e2.ast.getColumn(), $e1.ast, $e2.ast);}
             //Function Invocation as procedure
             | funcInvocation';'
             //If
@@ -134,8 +135,9 @@ variableDefinition: type id1=ID (',' id2=ID)* ';'
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-block: statement
-        | '{' statement* '}'
+block returns [List<Statement> ast = new ArrayList<>()]:
+        st1=statement   {$ast.add($st1.ast);}
+        | '{' (st2=statement {$ast.add($st2.ast)})* '}'
         ;
 
 funcInvocation returns [FunctionInvocation ast]:
@@ -158,10 +160,6 @@ args returns [List<Expression> ast = new ArrayList<>()]:
     ( e1=expression {$ast.add($e1.ast)}(',' e2=expression {$ast.add($e2.ast)})* )
     |
     ;
-
-highOrderArithmetic:
-                    //
-                    ;
 
 /*
 ----------------------------------------------------LEXER RULES---------------------------------------------------------

@@ -12,10 +12,14 @@ public class If_Else extends AbstractStatement{
     private List<Statement> ifBody;
     private List<Statement> elseBody;
 
-    public If_Else(int line, int column, Expression condition, List<Statement> ifBody, List<Statement> elseBody) {
+    public If_Else(int line, int column, Expression condition, List<Statement> ifBody) {
         super(line, column);
         this.condition = condition;
         this.ifBody = new ArrayList<>(ifBody);
+    }
+
+    public If_Else(int line, int column, Expression condition, List<Statement> ifBody, List<Statement> elseBody) {
+        this(line, column, condition, ifBody);
         this.elseBody = new ArrayList<>(elseBody);
     }
 
