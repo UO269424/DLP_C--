@@ -16,6 +16,7 @@ public class If_Else extends AbstractStatement{
         super(line, column);
         this.condition = condition;
         this.ifBody = new ArrayList<>(ifBody);
+        this.elseBody= new ArrayList<>();
     }
 
     public If_Else(int line, int column, Expression condition, List<Statement> ifBody, List<Statement> elseBody) {

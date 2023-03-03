@@ -59,7 +59,7 @@ expression returns [Expression ast]:
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-statement returns [List<Statement> ast = new ArrayList<>()]:
+statement returns [List<Statement> ast = new ArrayList<>()]: //Read and Write force to have a list because we need one statement per expression for those ones
             //Assignment
             e1=expression '=' e2=expression ';' {$ast.add(new Assignment($e1.ast.getLine(), $e2.ast.getColumn(), $e1.ast, $e2.ast));}
             //Function Invocation as procedure
@@ -86,16 +86,12 @@ statement returns [List<Statement> ast = new ArrayList<>()]:
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-type returns [Type ast, List<Integer> dimensions= new ArrayList<>()]:
-        //Built In type
-        b=builtInType {$ast = $b.ast;}
-        // Void Type
-        | v='void' {$ast = new VoidType($v.getLine(), $v.getCharPositionInLine()+1);}
+type returns [Type ast ] locals [List<Integer> dimensions= new ArrayList<>()]:
+        r=returnType  {$ast = $r.ast;}
         //Record Type
         | rt=recordType    {$ast = $rt.ast;}
         //Array Type
-        | t1=type ('[' ic=INT_CONSTANT ']' {$dimensions.add(Integer.parseInt($ic.text));})+
-                                           {$ast = ParserHelper.buildArrayType($t1.ast, $dimensions);}
+        | t1=type ('[' ic=INT_CONSTANT ']') {$ast = ParserHelper.buildArrayType($t1.ast, Integer.parseInt($ic.text));}
     ;
 
 builtInType returns [Type ast]:
@@ -106,6 +102,13 @@ builtInType returns [Type ast]:
                 //Char Type
                 | c='char'  {$ast = new CharType($c.getLine(), $c.getCharPositionInLine()+1);}
     ;
+
+returnType returns [Type ast]:
+            //Built In type
+             b=builtInType {$ast = $b.ast;}
+            // Void Type
+            | v='void' {$ast = new VoidType($v.getLine(), $v.getCharPositionInLine()+1);}
+           ;
 
 recordType returns [RecordType ast, List<RecordField> fields = new ArrayList<>()]:
             s='struct' '{'(rf=recordField {$fields.addAll($rf.ast);})* '}'    {$ast = new RecordType($s.getLine(), $s.getCharPositionInLine()+1, $fields);}
@@ -123,6 +126,10 @@ recordField returns [List<RecordField> ast = new ArrayList<>()]:
                                                             DEFINITIONS
 ------------------------------------------------------------------------------------------------------------------------
 */
+
+//Remember, first vardefinition and then statement
+
+//Vardefinition is not a statemeent in the concrete grammar although it is in the abstract grammar
 
 
 definition:   //Function Definition
@@ -154,8 +161,8 @@ block returns [List<Statement> ast = new ArrayList<>()]:
 
 funcInvocation returns [FunctionInvocation ast]:
                 ID'('args')' {$ast = new FunctionInvocation($ID.getLine(), $ID.getCharPositionInLine()+1,
-                                                                  new Variable($ID.getLine(), $ID.getCharPositionInLine()+1, $ID.text),
-                                                                    $args.ast);}
+                                        new Variable($ID.getLine(), $ID.getCharPositionInLine()+1, $ID.text),
+                                                      $args.ast);}
                 ;
 
 

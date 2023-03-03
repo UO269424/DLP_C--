@@ -17,19 +17,20 @@ public class ParserHelper {
             return new Arithmetic(line, column, left, right, op);
     }
 
-    public static ArrayType buildArrayType(Type t, List<Integer> lengths)  {
+    public static ArrayType buildArrayType(Type t, int length)  {
         int iteration = 0;
 
-        ArrayType at = buildArrayTypeRecursive(t, lengths, iteration);
+        ArrayType at = buildArrayTypeRecursive(t, length);
 
         return at;
     }
 
-    private static ArrayType buildArrayTypeRecursive(Type t, List<Integer> lengths, int iteration) {
-        ArrayType a = new ArrayType(t.getLine(), t.getColumn(), lengths.get(lengths.size()-1-iteration), t);
-        if(iteration< lengths.size()-1)
-            a = buildArrayTypeRecursive(a,lengths, iteration+1);
-
-        return a;
+    private static ArrayType buildArrayTypeRecursive(Type t, int length) {
+        if (t instanceof ArrayType) {
+            ArrayType other = (ArrayType) t;
+            other.setType(buildArrayTypeRecursive(other.getType(), length));
+            return other;
+        }
+        else return new ArrayType(t.getLine(), t.getColumn(), length, t);
     }
 }

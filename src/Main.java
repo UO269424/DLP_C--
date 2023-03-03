@@ -1,3 +1,4 @@
+import ast.Statement;
 import ast.Type;
 import introspector.model.IntrospectorModel;
 import introspector.view.IntrospectorView;
@@ -28,6 +29,8 @@ public class Main {
 		//Program ast = parser.program().ast;
 
 		Type ast = parser.type().ast;
+
+		//List<Statement> ast = parser.statement().ast;
 
 		IntrospectorModel model=new IntrospectorModel("Type", ast);
 		new IntrospectorView("Introspector", model);
