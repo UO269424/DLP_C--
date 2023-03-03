@@ -15,4 +15,8 @@ public class RecordType extends AbstractType{
     public List<RecordField> getFields() {
         return new ArrayList<>(fields);
     }
+
+    public void setFields(List<RecordField> fields) {
+        this.fields = fields;
+    }
 }

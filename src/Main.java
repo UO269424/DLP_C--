@@ -1,3 +1,4 @@
+import ast.Type;
 import introspector.model.IntrospectorModel;
 import introspector.view.IntrospectorView;
 import parser.*;
@@ -22,15 +23,13 @@ public class Main {
 		// create a parser that feeds off the tokens buffer
 		CommonTokenStream tokens = new CommonTokenStream(lexer); 
 		CmmParser parser = new CmmParser(tokens);	
-		parser.program();
+		//parser.program();
 
 		//Program ast = parser.program().ast;
 
-		List<String> ast = new ArrayList<>();
+		Type ast = parser.type().ast;
 
-		ast.add("leaf node");
-
-		IntrospectorModel model=new IntrospectorModel("Program", ast);
+		IntrospectorModel model=new IntrospectorModel("Type", ast);
 		new IntrospectorView("Introspector", model);
 
 	}

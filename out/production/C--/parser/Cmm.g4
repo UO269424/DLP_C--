@@ -23,30 +23,33 @@ main:   'void' 'main' '(' ')' functionBody
                                                             EXPRESSIONS
 ------------------------------------------------------------------------------------------------------------------------
 */
-expression returns [Expression ast]: //Parenthesis
-            '('e1=expression')'
+expression returns [Expression ast]:
+            //Parenthesis
+            '('e1=expression')'     {$ast = $e1.ast;}
             //Function invocation as expression
-            | funcInvocation
+            | f1 = funcInvocation   {$ast = $f1.ast;}
             //Array Access
-            |e1=expression '[' e2=expression ']'
+            |e1=expression '[' e2=expression ']'    {$ast = new ArrayAccess($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast);}
             //Field Access
-            |e1=expression '.' ID
+            |e1=expression '.' ID   {$ast = new FieldAccess($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $ID.text);}
             //Cast
-            | '('t1=type')' e1=expression
+            | '('t1=type')' e1=expression   {$ast = new Cast($t1.ast.getLine(), $t1.ast.getColumn(), $t1.ast, $e1.ast);}
             //Unary minus
-            | '-' e1=expression
+            | '-' e1 = expression   {$ast = new UnaryMinus($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast);}
             //Unary not
-            | '!' e1 = expression
+            | '!' e1 = expression   {$ast = new UnaryNot($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast);}
             //Arithmetic and modulus
-            | e1=expression op=('*' | '/' | '%') e2=expression
-            | e1=expression op=('+' | '-') e2=expression    {$ast= new Arithmetic($e1.ast, $e2.ast, $op.text);}
+            | e1=expression op=('*' | '/' | '%') e2=expression  {$ast= ParserHelper.highOrderArithmetic($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
+            | e1=expression op=('+' | '-') e2=expression        {$ast= new Arithmetic($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
             //Comparisons
-            | e1=expression ('<' | '<='| '>'| '>='| '!='| '==') e2=expression
+            | e1=expression op=('<' | '<='| '>'| '>='| '!='| '==') e2=expression   {$ast = new Comparison($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
             //Logical
-            | e1=expression ('&&' | '||') e2=expression
+            | e1=expression ('&&' | '||') e2=expression {$ast = new Logical($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast, $op.text);}
+            //Constants
             |i1=INT_CONSTANT    {$ast = new IntLiteral($i1.getLine(), $i1.getCharPositionInLine()+1, LexerHelper.lexemeToInt($i1.text));}
-            |CHAR_CONSTANT
-            |REAL_CONSTANT
+            |i1=CHAR_CONSTANT   {$ast = new CharLiteral($i1.getLine(), $i1.getCharPositionInLine()+1, LexerHelper.lexemeToChar($i1.text));}
+            |i1=REAL_CONSTANT   {$ast = new DoubleLiteral($i1.getLine(), $i1.getCharPositionInLine()+1, LexerHelper.lexemeToReal($i1.text));}
+            //Variable
             |ID {$ast = new Variable($ID.getLine(), $ID.getCharPositionInLine()+1, $ID.text);}
        ;
 
@@ -56,22 +59,25 @@ expression returns [Expression ast]: //Parenthesis
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-statement:  //Assignment
-            e1=expression '=' e2=expression ';'
+statement returns [List<Statement> ast = new ArrayList<>()]:
+            //Assignment
+            e1=expression '=' e2=expression ';' {$ast.add(new Assignment($e1.ast.getLine(), $e2.ast.getColumn(), $e1.ast, $e2.ast));}
             //Function Invocation as procedure
             | funcInvocation';'
             //If
-            |'if' '(' e1=expression ')' block
+            |i='if' '(' e1=expression ')' b=block   {$ast.add(new If_Else($i.getLine(), $i.getCharPositionInLine()+1, $e1.ast, $b.ast));}
             //If-else
-            |'if' '(' e1=expression ')' block 'else' block
+            |i='if' '(' e1=expression ')' b1=block 'else' b2=block  {$ast.add(new If_Else($i.getLine(), $i.getCharPositionInLine()+1, $e1.ast, $b1.ast, $b2.ast));}
             //Read
-            | 'read' e1=expression (',' e2=expression)* ';'
+            | r='read' e1=expression {$ast.add(new Read($r.getLine(), $r.getCharPositionInLine()+1, $e1.ast));}
+                (',' e2=expression   {$ast.add(new Read($r.getLine(), $r.getCharPositionInLine()+1, $e2.ast));})* ';'
             //Return
-            | 'return' e1=expression ';'
+            | r='return' e1=expression    {$ast.add(new Return($r.getLine(),$r.getCharPositionInLine()+1, $e1.ast));}';'
             //Write
-            | 'write' e1=expression (',' e2=expression)* ';'
+            | w='write' e1=expression {$ast.add(new Write($w.getLine(), $w.getCharPositionInLine()+1, $e1.ast));}
+                (',' e2=expression {$ast.add(new Write($w.getLine(), $w.getCharPositionInLine()+1, $e2.ast));})* ';'
             //While loop
-            |'while' '(' e1=expression ')' block
+            |w='while' '(' e1=expression ')' b=block    {$ast.add(new While($w.getLine(), $w.getCharPositionInLine()+1, $e1.ast, $b.ast));}
         ;
 
 /*
@@ -80,26 +86,37 @@ statement:  //Assignment
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-type:   //Built In type
-        builtInType
+type returns [Type ast, List<Integer> dimensions= new ArrayList<>()]:
+        //Built In type
+        b=builtInType {$ast = $b.ast;}
         // Void Type
-        | 'void'
+        | v='void' {$ast = new VoidType($v.getLine(), $v.getCharPositionInLine()+1);}
         //Record Type
-        | 'struct' '{'(recordField)* '}'
+        | rt=recordType    {$ast = $rt.ast;}
         //Array Type
-        | t1=type '[' INT_CONSTANT ']' ('[' INT_CONSTANT ']')*
+        | t1=type ('[' ic=INT_CONSTANT ']' {$dimensions.add(Integer.parseInt($ic.text));})+
+                                           {$ast = ParserHelper.buildArrayType($t1.ast, $dimensions);}
     ;
 
-builtInType:    //Integer Type
-                'int'
+builtInType returns [Type ast]:
+                //Integer Type
+                i='int'   {$ast = new IntType($i.getLine(), $i.getCharPositionInLine()+1);}
                 //Double Type
-                | 'double'
+                | d='double'    {$ast = new DoubleType($d.getLine(), $d.getCharPositionInLine()+1);}
                 //Char Type
-                | 'char'
+                | c='char'  {$ast = new CharType($c.getLine(), $c.getCharPositionInLine()+1);}
     ;
 
-recordField: t1= type ID (',' ID)*';'
+recordType returns [RecordType ast, List<RecordField> fields = new ArrayList<>()]:
+            s='struct' '{'(rf=recordField {$fields.addAll($rf.ast);})* '}'    {$ast = new RecordType($s.getLine(), $s.getCharPositionInLine()+1, $fields);}
             ;
+
+recordField returns [List<RecordField> ast = new ArrayList<>()]:
+                t1= type id1=ID (',' id2=ID {$ast.add(new RecordField($t1.ast.getLine(), $id2.getCharPositionInLine()+1, $t1.ast, $id2.text));} )*';'
+                                            {$ast.add(new RecordField($t1.ast.getLine(), $id1.getCharPositionInLine()+1, $t1.ast, $id1.text));}
+            ;
+
+
 
 /*
 ------------------------------------------------------------------------------------------------------------------------
@@ -130,11 +147,15 @@ variableDefinition: type id1=ID (',' id2=ID)* ';'
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-block: statement
-        | '{' statement* '}'
+block returns [List<Statement> ast = new ArrayList<>()]:
+        st1=statement   {$ast.addAll($st1.ast);}
+        | '{' (st2=statement {$ast.addAll($st2.ast);})* '}'
         ;
 
-funcInvocation: ID'('( e1=expression (',' e2=expression)* )?')'
+funcInvocation returns [FunctionInvocation ast]:
+                ID'('args')' {$ast = new FunctionInvocation($ID.getLine(), $ID.getCharPositionInLine()+1,
+                                                                  new Variable($ID.getLine(), $ID.getCharPositionInLine()+1, $ID.text),
+                                                                    $args.ast);}
                 ;
 
 
@@ -147,6 +168,10 @@ functionBody:   '{'
 params: t1=builtInType id1=ID (',' t2=builtInType id2=ID )*
         ;
 
+args returns [List<Expression> ast = new ArrayList<>()]:
+    ( e1=expression {$ast.add($e1.ast);}(',' e2=expression {$ast.add($e2.ast);})* )
+    |
+    ;
 
 
 /*

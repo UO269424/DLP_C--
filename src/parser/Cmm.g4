@@ -27,7 +27,7 @@ expression returns [Expression ast]:
             //Parenthesis
             '('e1=expression')'     {$ast = $e1.ast;}
             //Function invocation as expression
-            | f1 = funcInvocation   {$ast = $f1.ast}
+            | f1 = funcInvocation   {$ast = $f1.ast;}
             //Array Access
             |e1=expression '[' e2=expression ']'    {$ast = new ArrayAccess($e1.ast.getLine(), $e1.ast.getColumn(), $e1.ast, $e2.ast);}
             //Field Access
@@ -59,23 +59,25 @@ expression returns [Expression ast]:
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-statement returns [Statement ast]:
+statement returns [List<Statement> ast = new ArrayList<>()]:
             //Assignment
-            e1=expression '=' e2=expression ';' {$ast = new Assignment($e1.ast.getLine(), $e2.ast.getColumn(), $e1.ast, $e2.ast);}
+            e1=expression '=' e2=expression ';' {$ast.add(new Assignment($e1.ast.getLine(), $e2.ast.getColumn(), $e1.ast, $e2.ast));}
             //Function Invocation as procedure
             | funcInvocation';'
             //If
-            |'if' '(' e1=expression ')' block
+            |i='if' '(' e1=expression ')' b=block   {$ast.add(new If_Else($i.getLine(), $i.getCharPositionInLine()+1, $e1.ast, $b.ast));}
             //If-else
-            |'if' '(' e1=expression ')' block 'else' block
+            |i='if' '(' e1=expression ')' b1=block 'else' b2=block  {$ast.add(new If_Else($i.getLine(), $i.getCharPositionInLine()+1, $e1.ast, $b1.ast, $b2.ast));}
             //Read
-            | 'read' e1=expression (',' e2=expression)* ';'
+            | r='read' e1=expression {$ast.add(new Read($r.getLine(), $r.getCharPositionInLine()+1, $e1.ast));}
+                (',' e2=expression   {$ast.add(new Read($r.getLine(), $r.getCharPositionInLine()+1, $e2.ast));})* ';'
             //Return
-            | 'return' e1=expression ';'
+            | r='return' e1=expression    {$ast.add(new Return($r.getLine(),$r.getCharPositionInLine()+1, $e1.ast));}';'
             //Write
-            | 'write' e1=expression (',' e2=expression)* ';'
+            | w='write' e1=expression {$ast.add(new Write($w.getLine(), $w.getCharPositionInLine()+1, $e1.ast));}
+                (',' e2=expression {$ast.add(new Write($w.getLine(), $w.getCharPositionInLine()+1, $e2.ast));})* ';'
             //While loop
-            |'while' '(' e1=expression ')' block
+            |w='while' '(' e1=expression ')' b=block    {$ast.add(new While($w.getLine(), $w.getCharPositionInLine()+1, $e1.ast, $b.ast));}
         ;
 
 /*
@@ -84,27 +86,37 @@ statement returns [Statement ast]:
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-type returns [Type ast]:
+type returns [Type ast, List<Integer> dimensions= new ArrayList<>()]:
         //Built In type
-        builtInType
+        b=builtInType {$ast = $b.ast;}
         // Void Type
-        | 'void'
+        | v='void' {$ast = new VoidType($v.getLine(), $v.getCharPositionInLine()+1);}
         //Record Type
-        | 'struct' '{'(recordField)* '}'
+        | rt=recordType    {$ast = $rt.ast;}
         //Array Type
-        | t1=type '[' INT_CONSTANT ']' ('[' INT_CONSTANT ']')*
+        | t1=type ('[' ic=INT_CONSTANT ']' {$dimensions.add(Integer.parseInt($ic.text));})+
+                                           {$ast = ParserHelper.buildArrayType($t1.ast, $dimensions);}
     ;
 
-builtInType:    //Integer Type
-                'int'
+builtInType returns [Type ast]:
+                //Integer Type
+                i='int'   {$ast = new IntType($i.getLine(), $i.getCharPositionInLine()+1);}
                 //Double Type
-                | 'double'
+                | d='double'    {$ast = new DoubleType($d.getLine(), $d.getCharPositionInLine()+1);}
                 //Char Type
-                | 'char'
+                | c='char'  {$ast = new CharType($c.getLine(), $c.getCharPositionInLine()+1);}
     ;
 
-recordField: t1= type ID (',' ID)*';'
+recordType returns [RecordType ast, List<RecordField> fields = new ArrayList<>()]:
+            s='struct' '{'(rf=recordField {$fields.addAll($rf.ast);})* '}'    {$ast = new RecordType($s.getLine(), $s.getCharPositionInLine()+1, $fields);}
             ;
+
+recordField returns [List<RecordField> ast = new ArrayList<>()]:
+                t1= type id1=ID (',' id2=ID {$ast.add(new RecordField($t1.ast.getLine(), $id2.getCharPositionInLine()+1, $t1.ast, $id2.text));} )*';'
+                                            {$ast.add(new RecordField($t1.ast.getLine(), $id1.getCharPositionInLine()+1, $t1.ast, $id1.text));}
+            ;
+
+
 
 /*
 ------------------------------------------------------------------------------------------------------------------------
@@ -136,13 +148,13 @@ variableDefinition: type id1=ID (',' id2=ID)* ';'
 */
 
 block returns [List<Statement> ast = new ArrayList<>()]:
-        st1=statement   {$ast.add($st1.ast);}
-        | '{' (st2=statement {$ast.add($st2.ast)})* '}'
+        st1=statement   {$ast.addAll($st1.ast);}
+        | '{' (st2=statement {$ast.addAll($st2.ast);})* '}'
         ;
 
 funcInvocation returns [FunctionInvocation ast]:
                 ID'('args')' {$ast = new FunctionInvocation($ID.getLine(), $ID.getCharPositionInLine()+1,
-                                                                  new Variable($ID.getLine(), $ID.getCharPositionInLine()+1)),
+                                                                  new Variable($ID.getLine(), $ID.getCharPositionInLine()+1, $ID.text),
                                                                     $args.ast);}
                 ;
 
@@ -157,9 +169,10 @@ params: t1=builtInType id1=ID (',' t2=builtInType id2=ID )*
         ;
 
 args returns [List<Expression> ast = new ArrayList<>()]:
-    ( e1=expression {$ast.add($e1.ast)}(',' e2=expression {$ast.add($e2.ast)})* )
+    ( e1=expression {$ast.add($e1.ast);}(',' e2=expression {$ast.add($e2.ast);})* )
     |
     ;
+
 
 /*
 ----------------------------------------------------LEXER RULES---------------------------------------------------------
