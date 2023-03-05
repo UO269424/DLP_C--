@@ -38,4 +38,9 @@ public class Arithmetic extends AbstractExpression{
     public void setOperator(String operator) {
         this.operator = operator;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s %s %s", left, operator, right);
+    }
 }

@@ -16,4 +16,9 @@ public class IntLiteral extends AbstractExpression{
     public void setValue(int value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s", value);
+    }
 }

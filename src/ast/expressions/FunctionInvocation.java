@@ -32,4 +32,20 @@ public class FunctionInvocation extends AbstractExpression implements Statement 
     public void setArgs(List<Expression> args) {
         this.args = args;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(function.getName());
+        sb.append("(");
+
+        if (args.size() > 0) {
+            sb.append(args.get(0).toString());
+            for (int i = 1; i < args.size(); i ++)
+                sb.append(", " + args.get(i));
+        }
+
+        sb.append(")");
+        return sb.toString();
+    }
 }

@@ -29,4 +29,9 @@ public class Cast extends AbstractExpression{
     public void setOperand(Expression operand) {
         this.operand = operand;
     }
+
+    @Override
+    public String toString() {
+        return String.format("(%s) %s", targetType, operand);
+    }
 }

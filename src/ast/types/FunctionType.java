@@ -3,6 +3,7 @@ package ast.types;
 import ast.Type;
 import ast.definitions.VarDefinition;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionType extends AbstractType{
@@ -12,8 +13,11 @@ public class FunctionType extends AbstractType{
 
     public FunctionType(int line, int column, List<VarDefinition> params, Type returnType) {
         super(line, column);
-        this.params = params;
+        this.params = new ArrayList<>(params);
         this.returnType = returnType;
+    }
+    public FunctionType(int line, int column, Type returnType) {
+        this(line, column,new ArrayList<>(), returnType);
     }
 
     public List<VarDefinition> getParams() {
@@ -30,5 +34,19 @@ public class FunctionType extends AbstractType{
 
     public void setReturnType(Type returnType) {
         this.returnType = returnType;
+    }
+
+    @Override
+    public String toString() {
+
+        String strParams = "";
+        if (params.size() > 0) {
+            strParams += params.get(0).toString();
+            for (int i = 1; i < params.size(); i ++)
+                strParams += (", " + params.get(i).toString());
+        }
+
+        return String.format("FunctionType: returnType=%s, params=( %s )",
+                returnType, strParams);
     }
 }

@@ -28,4 +28,13 @@ public class ArrayAccess extends AbstractExpression{
     public void setIndex(Expression index) {
         this.index = index;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ArrayAccess [%s : %s] : array=[ %s ] index=[ %s ]",
+                getLine(),
+                getColumn(),
+                array,
+                index);
+    }
 }

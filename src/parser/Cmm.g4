@@ -10,10 +10,14 @@ grammar Cmm;
 
 
 
-program:    (definition)* main EOF
+program returns [Program ast] locals [List<Definition> defs = new ArrayList<>()]:
+            (d=definition   {$defs.addAll($d.ast);})*
+            main            {$defs.add($main.ast);}
+            EOF             {$ast = new Program(0,0,$defs);}
         ;
 
-main:   'void' 'main' '(' ')' functionBody
+main returns [FuncDefinition ast]:
+        v='void' m='main' '(' ')' fb=functionBody  {$ast = new FuncDefinition($v.getLine(), $v.getCharPositionInLine()+1, $m.text, new FunctionType($v.getLine(), $v.getCharPositionInLine()+1, new VoidType($v.getLine(), $v.getCharPositionInLine()+1)), $fb.ast);}
         ;
 
 
@@ -63,7 +67,7 @@ statement returns [List<Statement> ast = new ArrayList<>()]: //Read and Write fo
             //Assignment
             e1=expression '=' e2=expression ';' {$ast.add(new Assignment($e1.ast.getLine(), $e2.ast.getColumn(), $e1.ast, $e2.ast));}
             //Function Invocation as procedure
-            | funcInvocation';'
+            | fi=funcInvocation';'     {$ast.add($fi.ast);}
             //If
             |i='if' '(' e1=expression ')' b=block   {$ast.add(new If_Else($i.getLine(), $i.getCharPositionInLine()+1, $e1.ast, $b.ast));}
             //If-else
@@ -132,19 +136,24 @@ recordField returns [List<RecordField> ast = new ArrayList<>()]:
 //Vardefinition is not a statemeent in the concrete grammar although it is in the abstract grammar
 
 
-definition:   //Function Definition
-              functionDefinition
+definition returns [List<Definition> ast = new ArrayList<>()]:
+            //Function Definition
+              fd=functionDefinition    {$ast.add($fd.ast);}
               //Variable Definition
-            | variableDefinition
+            | vd=variableDefinition     {$ast.addAll($vd.ast);}
             ;
 
-functionDefinition: //Params must be built-in, return type can be buil-In or void (description.txt)
-                    t1=builtInType idF=ID '(' (params)?')' functionBody
-                    | 'void' idF=ID '(' (params)?')' functionBody
+functionDefinition returns [FuncDefinition ast] locals [List<VarDefinition> parameters = new ArrayList<>()]:
+                    //Params must be built-in, return type can be built-In or void (description.txt)
+                    t1=returnType idF=ID '(' (p=params {$parameters.addAll($p.ast);})?')' fb=functionBody {$ast = new FuncDefinition($t1.ast.getLine(), $t1.ast.getColumn(), $idF.text,
+                                                                                                                    new FunctionType($t1.ast.getLine(), $t1.ast.getColumn(), $parameters, $t1.ast),
+                                                                                                        $fb.ast);}
                     ;
 
 
-variableDefinition: type id1=ID (',' id2=ID)* ';'
+variableDefinition returns [List<VarDefinition> ast = new ArrayList<>()]:
+                    t=type id1=ID     {$ast.add(new VarDefinition($t.ast.getLine(), $t.ast.getColumn(), $id1.getText(), $t.ast));}
+                    (',' id2=ID     {$ast.add(new VarDefinition($t.ast.getLine(), $t.ast.getColumn(), $id2.getText(), $t.ast));})* ';'
                     ;
 
 
@@ -166,13 +175,16 @@ funcInvocation returns [FunctionInvocation ast]:
                 ;
 
 
-functionBody:   '{'
-                    (variableDefinition)*
-                    (statement)*
+functionBody returns [List<Statement> ast = new ArrayList<>()]:
+                '{'
+                    (vd=variableDefinition  {$ast.addAll($vd.ast);})*
+                    (s=statement    {$ast.addAll($s.ast);})*
                 '}'
                 ;
 
-params: t1=builtInType id1=ID (',' t2=builtInType id2=ID )*
+params returns [List<VarDefinition> ast = new ArrayList<>()]:
+        t1=builtInType id1=ID   {$ast.add(new VarDefinition($t1.ast.getLine(), $t1.ast.getColumn(), $id1.getText(), $t1.ast));}
+        (',' t2=builtInType id2=ID {$ast.add(new VarDefinition($t2.ast.getLine(), $t2.ast.getColumn(), $id2.getText(), $t2.ast));} )*
         ;
 
 args returns [List<Expression> ast = new ArrayList<>()]:

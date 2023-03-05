@@ -24,4 +24,22 @@ public class FuncDefinition extends AbstractDefinition implements Statement {
     public void setBody(List<Statement> body) {
         this.body = new ArrayList<>(body);
     }
+
+    @Override
+    public String toString() {
+        String params = "";
+        List<VarDefinition> list = ((FunctionType) this.getType()).getParams();
+        if (list.size() > 0) {
+            for (int i = 0; i < list.size()-1; i ++)
+                params += list.get(i).toString() + ", ";
+            params += list.get(list.size()-1).toString();
+        }
+
+        return String.format("FunctionDefinition [%s : %s]: %s %s(%s)",
+                getLine(),
+                getColumn(),
+                ((FunctionType) this.getType()).getReturnType(),
+                this.getName(),
+                params);
+    }
 }

@@ -32,4 +32,9 @@ public class While extends AbstractStatement{
     public void setBody(List<Statement> body) {
         this.body = new ArrayList<>(body);
     }
+
+    @Override
+    public String toString() {
+        return String.format("While (%s)", this.getCondition().toString());
+    }
 }

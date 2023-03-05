@@ -1,3 +1,5 @@
+import ast.Definition;
+import ast.Program;
 import ast.Statement;
 import ast.Type;
 import introspector.model.IntrospectorModel;
@@ -26,11 +28,13 @@ public class Main {
 		CmmParser parser = new CmmParser(tokens);	
 		//parser.program();
 
-		//Program ast = parser.program().ast;
+		Program ast = parser.program().ast;
 
-		Type ast = parser.type().ast;
+		//Type ast = parser.type().ast;
 
 		//List<Statement> ast = parser.statement().ast;
+
+		//List<Definition> ast = parser.definition().ast;
 
 		IntrospectorModel model=new IntrospectorModel("Type", ast);
 		new IntrospectorView("Introspector", model);

@@ -11,5 +11,10 @@ public class UnaryMinus extends AbstractExpression{
         this.operand = operand;
     }
 
+    @Override
+    public String toString() {
+        return String.format("-%s", operand);
+    }
+
 
 }

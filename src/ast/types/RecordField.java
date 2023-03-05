@@ -20,4 +20,9 @@ public class RecordField extends AbstractType{
     public String getField() {
         return field;
     }
+
+    @Override
+    public String toString()    {
+        return String.format("Record field: %s %s", type, field);
+    }
 }

@@ -28,4 +28,9 @@ public class Assignment extends AbstractStatement{
     public void setRight(Expression right) {
         this.right = right;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Assignment: %s = %s", left.toString(), right.toString());
+    }
 }

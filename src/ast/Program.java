@@ -11,4 +11,12 @@ public class Program extends AbstractASTNode{
         super(line, column);
         definitions= new ArrayList<Definition>(defs);
     }
+
+    @Override
+    public String toString() {
+        return String.format("Program [%s : %s] : with %s definitions",
+                getLine(),
+                getColumn(),
+                definitions.size());
+    }
 }

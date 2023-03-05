@@ -2,6 +2,8 @@ package parser;
 
 import ast.Expression;
 import ast.Type;
+import ast.definitions.FuncDefinition;
+import ast.definitions.VarDefinition;
 import ast.expressions.Arithmetic;
 import ast.expressions.Modulus;
 import ast.types.ArrayType;

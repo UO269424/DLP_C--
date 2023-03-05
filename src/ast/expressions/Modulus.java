@@ -28,4 +28,9 @@ public class Modulus extends AbstractExpression{
     public void setRight(Expression right) {
         this.right = right;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s % %s", left, right);
+    }
 }

@@ -19,4 +19,16 @@ public class RecordType extends AbstractType{
     public void setFields(List<RecordField> fields) {
         this.fields = fields;
     }
+
+    @Override
+    public String toString()    {
+        StringBuilder sb = new StringBuilder();
+        if(fields.size()>0) {
+            sb.append(fields.get(0).toString());
+
+            for (int i = 1; i < fields.size(); i ++)
+                sb.append(", " + fields.get(i).toString());
+        }
+         return String.format("StructType {\n%s\n}", sb.toString());
+    }
 }

@@ -49,4 +49,9 @@ public class If_Else extends AbstractStatement{
     public void setElseBody(List<Statement> elseBody) {
         this.elseBody = new ArrayList<>(elseBody);
     }
+
+    @Override
+    public String toString() {
+        return String.format("IfStatement (%s)", this.getCondition().toString());
+    }
 }

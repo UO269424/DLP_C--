@@ -18,4 +18,9 @@ public class Write extends  AbstractStatement{
     public void setExpression(Expression expression) {
         this.expression = expression;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Write %s", expression);
+    }
 }

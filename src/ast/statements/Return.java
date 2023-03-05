@@ -18,4 +18,9 @@ public class Return extends AbstractStatement{
     public void setValue(Expression value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Return %s", value);
+    }
 }

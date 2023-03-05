@@ -28,4 +28,9 @@ public class ArrayType extends AbstractType{
     public void setType(Type type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ArrayType [%s, %s]", this.length, this.type);
+    }
 }

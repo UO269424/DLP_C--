@@ -16,4 +16,9 @@ public class DoubleLiteral extends AbstractExpression{
     public void setValue(double value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s", value);
+    }
 }

@@ -18,4 +18,9 @@ public class UnaryNot extends AbstractExpression{
     public void setOperand(Expression operand) {
         this.operand = operand;
     }
+
+    @Override
+    public String toString() {
+        return String.format("!%s", operand);
+    }
 }
