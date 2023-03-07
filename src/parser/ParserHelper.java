@@ -20,8 +20,6 @@ public class ParserHelper {
     }
 
     public static ArrayType buildArrayType(Type t, int length)  {
-        int iteration = 0;
-
         ArrayType at = buildArrayTypeRecursive(t, length);
 
         return at;

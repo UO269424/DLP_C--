@@ -20,7 +20,7 @@ int f(int n, double r) {
 void main() {
   // * Record
   struct {
-    int integer;
+    int integer, integer;
     char character;
   } pair;
   // * Array

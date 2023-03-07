@@ -1,5 +1,7 @@
 package ast.types;
 
+import errorHandler.ErrorHandler;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,19 @@ public class RecordType extends AbstractType{
     public RecordType(int line, int column, List<RecordField> fields) {
         super(line, column);
         this.fields = new ArrayList<>(fields);
+        List<RecordField> check = new ArrayList<>(this.fields);
+        fields.forEach(rf -> {  int counter=0;
+                                for(RecordField other : check) {
+                                    if(other.getField().equals(rf.getField()) && other.getType().equals(rf.getType())) {
+                                        counter++;
+                                    }
+
+                                }
+                                check.remove(rf);
+                                if(counter>=2)  {
+                                    ErrorHandler.getInstance().addError(new ErrorType(rf.getLine(), rf.getColumn(), String.format("There are duplicated fields in struct")));
+                                }
+        });
     }
 
     public List<RecordField> getFields() {

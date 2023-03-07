@@ -2,6 +2,7 @@ import ast.Definition;
 import ast.Program;
 import ast.Statement;
 import ast.Type;
+import errorHandler.ErrorHandler;
 import introspector.model.IntrospectorModel;
 import introspector.view.IntrospectorView;
 import parser.*;
@@ -36,10 +37,17 @@ public class Main {
 
 		//List<Definition> ast = parser.definition().ast;
 
-		IntrospectorModel model=new IntrospectorModel("Type", ast);
-		new IntrospectorView("Introspector", model);
+
+		if (ErrorHandler.getInstance().anyErrors())
+			ErrorHandler.getInstance().showErrors(System.err);
+		else {
+			// * The AST is shown
+			IntrospectorModel model=new IntrospectorModel(
+					"Program", ast);
+			new IntrospectorView("Introspector", model);
+		}
 
 	}
-	
+
 
 }
