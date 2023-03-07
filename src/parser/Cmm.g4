@@ -91,7 +91,7 @@ statement returns [List<Statement> ast = new ArrayList<>()]: //Read and Write fo
 */
 
 type returns [Type ast ] locals [List<Integer> dimensions= new ArrayList<>()]:
-        r=returnType  {$ast = $r.ast;}
+        b=builtInType  {$ast = $b.ast;}
         //Record Type
         | rt=recordType    {$ast = $rt.ast;}
         //Array Type

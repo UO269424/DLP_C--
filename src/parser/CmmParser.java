@@ -713,11 +713,11 @@ public class CmmParser extends Parser {
 		public Type ast;
 		public List<Integer> dimensions = new ArrayList<>();
 		public TypeContext t1;
-		public ReturnTypeContext r;
+		public BuiltInTypeContext b;
 		public RecordTypeContext rt;
 		public Token ic;
-		public ReturnTypeContext returnType() {
-			return getRuleContext(ReturnTypeContext.class,0);
+		public BuiltInTypeContext builtInType() {
+			return getRuleContext(BuiltInTypeContext.class,0);
 		}
 		public RecordTypeContext recordType() {
 			return getRuleContext(RecordTypeContext.class,0);
@@ -750,14 +750,13 @@ public class CmmParser extends Parser {
 			setState(197);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case T__0:
 			case T__30:
 			case T__31:
 			case T__32:
 				{
 				setState(191);
-				((TypeContext)_localctx).r = returnType();
-				((TypeContext)_localctx).ast =  ((TypeContext)_localctx).r.ast;
+				((TypeContext)_localctx).b = builtInType();
+				((TypeContext)_localctx).ast =  ((TypeContext)_localctx).b.ast;
 				}
 				break;
 			case T__33:
@@ -958,7 +957,7 @@ public class CmmParser extends Parser {
 			setState(232);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (((_la) & ~0x3f) == 0 && ((1L << _la) & 32212254722L) != 0) {
+			while (((_la) & ~0x3f) == 0 && ((1L << _la) & 32212254720L) != 0) {
 				{
 				{
 				setState(227);
@@ -1396,7 +1395,7 @@ public class CmmParser extends Parser {
 			setState(311);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (((_la) & ~0x3f) == 0 && ((1L << _la) & 32212254722L) != 0) {
+			while (((_la) & ~0x3f) == 0 && ((1L << _la) & 32212254720L) != 0) {
 				{
 				{
 				setState(306);
@@ -1760,7 +1759,7 @@ public class CmmParser extends Parser {
 		"\u0000\u0000\u00bc\u0094\u0001\u0000\u0000\u0000\u00bc\u00a2\u0001\u0000"+
 		"\u0000\u0000\u00bc\u00a7\u0001\u0000\u0000\u0000\u00bc\u00b5\u0001\u0000"+
 		"\u0000\u0000\u00bd\u0007\u0001\u0000\u0000\u0000\u00be\u00bf\u0006\u0004"+
-		"\uffff\uffff\u0000\u00bf\u00c0\u0003\f\u0006\u0000\u00c0\u00c1\u0006\u0004"+
+		"\uffff\uffff\u0000\u00bf\u00c0\u0003\n\u0005\u0000\u00c0\u00c1\u0006\u0004"+
 		"\uffff\uffff\u0000\u00c1\u00c6\u0001\u0000\u0000\u0000\u00c2\u00c3\u0003"+
 		"\u000e\u0007\u0000\u00c3\u00c4\u0006\u0004\uffff\uffff\u0000\u00c4\u00c6"+
 		"\u0001\u0000\u0000\u0000\u00c5\u00be\u0001\u0000\u0000\u0000\u00c5\u00c2"+
