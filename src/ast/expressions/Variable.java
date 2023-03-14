@@ -1,5 +1,7 @@
 package ast.expressions;
 
+import semantic.Visitor;
+
 public class Variable extends AbstractExpression{
 
     private String name;
@@ -20,5 +22,10 @@ public class Variable extends AbstractExpression{
     @Override
     public String toString() {
         return this.name;
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP param) {
+        return visitor.visit(this, param);
     }
 }

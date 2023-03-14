@@ -1,6 +1,7 @@
 package ast.types;
 
 import ast.Type;
+import semantic.Visitor;
 
 public class RecordField extends AbstractType{
 
@@ -24,5 +25,10 @@ public class RecordField extends AbstractType{
     @Override
     public String toString()    {
         return String.format("Record field: %s %s", type, field);
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP param) {
+        return visitor.visit(this, param);
     }
 }

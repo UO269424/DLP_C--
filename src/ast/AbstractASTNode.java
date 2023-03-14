@@ -1,6 +1,8 @@
 package ast;
 
-public class AbstractASTNode implements ASTNode{
+import semantic.Visitor;
+
+public abstract class AbstractASTNode implements ASTNode{
     private int line;
     private int column;
 
@@ -20,4 +22,6 @@ public class AbstractASTNode implements ASTNode{
     public int getColumn() {
         return this.column;
     }
+
+
 }

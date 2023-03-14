@@ -2,6 +2,7 @@ package ast.expressions;
 
 import ast.Expression;
 import ast.Statement;
+import semantic.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,5 +48,10 @@ public class FunctionInvocation extends AbstractExpression implements Statement 
 
         sb.append(")");
         return sb.toString();
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP param) {
+        return visitor.visit(this, param);
     }
 }

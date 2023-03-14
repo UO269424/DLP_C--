@@ -1,6 +1,7 @@
 package ast.expressions;
 
 import ast.Expression;
+import semantic.Visitor;
 
 public class UnaryNot extends AbstractExpression{
 
@@ -22,5 +23,10 @@ public class UnaryNot extends AbstractExpression{
     @Override
     public String toString() {
         return String.format("!%s", operand);
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP param) {
+        return visitor.visit(this, param);
     }
 }

@@ -1,6 +1,7 @@
 package ast.types;
 
 import errorHandler.ErrorHandler;
+import semantic.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class RecordType extends AbstractType{
                                 }
                                 check.remove(rf);
                                 if(counter>=2)  {
-                                    ErrorHandler.getInstance().addError(new ErrorType(rf.getLine(), rf.getColumn(), String.format("There are duplicated fields in struct")));
+                                    new ErrorType(rf.getLine(), rf.getColumn(), String.format("There are duplicated fields in struct"));
                                 }
         });
     }
@@ -45,5 +46,10 @@ public class RecordType extends AbstractType{
                 sb.append(", " + fields.get(i).toString());
         }
          return String.format("StructType {\n%s\n}", sb.toString());
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP param) {
+        return visitor.visit(this, param);
     }
 }

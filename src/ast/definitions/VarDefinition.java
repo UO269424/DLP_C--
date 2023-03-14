@@ -2,6 +2,7 @@ package ast.definitions;
 
 import ast.Statement;
 import ast.Type;
+import semantic.Visitor;
 
 public class VarDefinition extends AbstractDefinition implements Statement {
 
@@ -15,5 +16,10 @@ public class VarDefinition extends AbstractDefinition implements Statement {
         return String.format("%s %s",
                 this.getType(),
                 this.getName());
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP param) {
+        return visitor.visit(this, param);
     }
 }

@@ -3,6 +3,7 @@ package ast.definitions;
 import ast.Statement;
 import ast.Type;
 import ast.types.FunctionType;
+import semantic.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,5 +42,10 @@ public class FuncDefinition extends AbstractDefinition implements Statement {
                 ((FunctionType) this.getType()).getReturnType(),
                 this.getName(),
                 params);
+    }
+
+    @Override
+    public <TP, TR> TR accept(Visitor<TP, TR> visitor, TP param) {
+        return visitor.visit(this, param);
     }
 }
